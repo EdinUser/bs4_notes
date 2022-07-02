@@ -8,7 +8,15 @@
         //Name of the class of the inputs
         convertClass: "haveNote",
         // Use an icon font
-        useIcons: true
+        useIcons: true,
+        // Default Google Icon for Add a Note
+        iconAddNote: '<span class="material-symbols-outlined fs">note_add</span>',
+        // Default Google Icon for Existing Note
+        iconExistingNote: '<span class="material-symbols-outlined fs">note</span>',
+        // Default Google Icon for Remove an icon
+        iconRemoveNote: '<span class="material-symbols-outlined fs">delete</span>',
+        // Container for recorded notes
+        recordedNotesContainer: "#notesContainer"
     };
 
     let settings = {};
@@ -43,11 +51,6 @@
             $("#addNoteModal").modal('hide');
             $.notesBS4.buildNotes(settings.key)
         });
-
-        $("#cleanUpAllNotes").on("click", function (e) {
-            e.preventDefault();
-            $.notesBS4.clearNotes(settings.key)
-        })
     }
 
     $.notesBS4.doNotesInit = function doNotesInit() {
@@ -75,11 +78,13 @@
                 class: 'btn btn-warning'
             })
             .html(
-                $("<span/>")
-                    .attr({
-                        class: 'material-symbols-outlined fs'
-                    })
-                    .html('note_add')
+                function () {
+                    if (settings.useIcons === true) {
+                        return settings.iconAddNote
+                    } else {
+                        return "Add a note"
+                    }
+                }
             )
             .trigger('modal')
             .on("click", function (e) {
@@ -113,10 +118,8 @@
 
     $.notesBS4.buildNotes = function buildNotes(key) {
         existingNotes = $.notesBS4.readNotes(key);
-        const notesContainer = $("#notesContainer");
-        const notesListing = $("#notesListing");
-
-        notesListing.empty();
+        const notesContainer = $(settings.recordedNotesContainer);
+        const notesListing = $("<div/>").attr("id", "notesListing");
 
         if (Object.keys(existingNotes).length > 0) {
             notesContainer.removeClass("d-none");
@@ -160,6 +163,29 @@
 
                 notesListing.append(notesNameListing)
             }
+            console.log(notesListing)
+            notesContainer.append(notesListing);
+
+            $("<a/>")
+                .attr({
+                    id: "cleanUpAllNotes",
+                    href: "#"
+                })
+                .addClass("btn btn-danger btn-sm btn-block")
+                .append(
+                    function () {
+                        if (settings.useIcons === true) {
+                            return settings.iconRemoveNote
+                        } else {
+                            return "Delete all notes"
+                        }
+                    }
+                )
+                .on("click", function (e) {
+                    e.preventDefault();
+                    $.notesBS4.clearNotes(settings.key)
+                })
+                .appendTo(notesContainer)
         } else {
             notesContainer.addClass("d-none");
         }
@@ -185,9 +211,13 @@
                     id: 'noteFor' + findValue.id
                 })
                 .append(
-                    $("<span/>")
-                        .addClass("material-symbols-outlined fs mr-2")
-                        .html("note")
+                    function () {
+                        if (settings.useIcons === true) {
+                            return settings.iconExistingNote
+                        } else {
+                            return "Recorded note: "
+                        }
+                    }
                 )
                 .append(
                     $("<b/>")
