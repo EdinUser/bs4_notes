@@ -62,7 +62,6 @@ import {Builder} from "./builder.js";
     }
 
     $.notesBS.submitNewNote = (e, submittedForm) => {
-
         if (submittedForm[0].checkValidity() === false) {
             e.preventDefault();
             e.stopPropagation();
@@ -175,7 +174,6 @@ import {Builder} from "./builder.js";
         if (localStorage.getItem(settings.key)) {
             storageData = JSON.parse(localStorage.getItem(settings.key));
             if (typeof storageData[data.name] !== 'undefined') {
-                const parsedArray = [...storageData[data.name]];
                 const findValue = storageData[data.name].find((o, i) => {
                     return o['id'] === data.id
                 });
@@ -185,8 +183,11 @@ import {Builder} from "./builder.js";
                         storageData[data.name].splice(parseInt(currentValue), 1);
                     }
                 }
-                console.log(storageData[data.name])
+                if(storageData[data.name].length < 1){
+                    delete storageData[data.name];
+                }
             }
+            console.log(storageData)
             localStorage.setItem(settings.key, JSON.stringify(storageData));
             $.notesBS.buildNotes(settings.key);
         }
