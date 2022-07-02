@@ -1,6 +1,6 @@
 # Bootstrap 4 localstorage notes
 
-This script allows you to add notes to any "input" field on your page
+This script allows you to add notes to any "input" field on your page. This extension utilizes the ```localstorage``` option, so this means the notes are ONLY ON YOUR CURRENT BROWSER.
 
 ## Requirements
 
@@ -8,7 +8,7 @@ Bootstrap 4/5; JQuery
 
 ## Install
 
-Download ```js/notes_BS4.js``` and include it in your HTML file. Start it:
+Download ```js/dynamic_notes.js``` and include it in your HTML file. Start it:
 
 ```html
 
@@ -26,7 +26,7 @@ Download ```js/notes_BS4.js``` and include it in your HTML file. Start it:
         }
 
         // init it
-        $.notesBS4(notesBSOptions);
+        $.notesBS(notesBSOptions);
     })
 </script>
 ```
@@ -39,6 +39,8 @@ const defaults = {
 
     //Default key name. This can later be put to URL
     key: "BS4_notes",
+    //Expire time in hours
+    expireAfter: 168,
     //Name of the class of the inputs
     convertClass: "haveNote",
     // Use an icon font
@@ -124,5 +126,25 @@ HTML example code. Notice, the extension works with both ```input-group``` and w
 <label for="other_code">Add some more dynamic shit</label>
 <input type="text" class="form-control haveNote" name="other_code" id="other_code" data-note-title="Dynamic note"/>
 ```
+
+There must be a modal to handle the adding of new notes. The ```id``` of this modal can be send via the options, and inside the modal ```modal-body``` you must insert these:
+
+```html
+<form method="post" action="/" id="addNoteForm" novalidate>
+    <label for="noteTitle">Note title</label>
+    <input type="text" name="noteTitle" class="form-control" id="noteTitle" required/>
+    <div class="invalid-feedback">
+        Enter a title!
+    </div>
+    <label for="noteContent">Note</label>
+    <input type="text" name="noteContent" class="form-control" id="noteContent" required/>
+    <div class="invalid-feedback">
+        Enter a note!
+    </div>
+    <input type="hidden" name="noteName" class="form-control" id="noteName"/>
+</form>
+```
+
+## How it works?
 
 When BS4 Notes starts, it adds a button, which shows a modal on click event. Inside of the modal you can fill the "id" of the note and its content. This "id" is used later to track down if you entered it in the same input, the extension displays the note in a dedicated div below it with the note.
