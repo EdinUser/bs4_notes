@@ -36,7 +36,9 @@ import {Builder} from "./builder.js";
         settings = $.extend({}, defaults, options);
         builder = new Builder(settings);
 
-        $.notesBS.buildNotes(settings.key)
+        existingNotes = $.notesBS.readNotes(settings.key);
+
+        $.notesBS.buildNotes()
         $.notesBS.doNotesInit()
 
         $(settings.modalId).on("shown.bs.modal", function (e) {
@@ -62,7 +64,6 @@ import {Builder} from "./builder.js";
     }
 
     $.notesBS.submitNewNote = (e, submittedForm) => {
-
         if (submittedForm[0].checkValidity() === false) {
             e.preventDefault();
             e.stopPropagation();
@@ -79,7 +80,7 @@ import {Builder} from "./builder.js";
 
             $.notesBS.saveNotes(dataForSave)
             $(settings.modalId).modal('hide');
-            $.notesBS.buildNotes(settings.key)
+            $.notesBS.buildNotes()
         }
     }
 
@@ -100,8 +101,7 @@ import {Builder} from "./builder.js";
         })
     }
 
-    $.notesBS.buildNotes = (key) => {
-        existingNotes = $.notesBS.readNotes(key);
+    $.notesBS.buildNotes = () => {
         const notesContainer = $(settings.recordedNotesContainer);
 
         if (Object.keys(existingNotes).length > 0) {
@@ -134,14 +134,15 @@ import {Builder} from "./builder.js";
     }
 
     $.notesBS.readNotes = (key) => {
-        const existingNotes = JSON.parse(localStorage.getItem(key)) ?? {};
+        existingNotes = JSON.parse(localStorage.getItem(key)) ?? {};
         const now = new Date().getTime();
 
         for (const existingKeys in existingNotes) {
             for (const existingNames in existingNotes[existingKeys]) {
                 const currentRecord = existingNotes[existingKeys][existingNames]
                 if(now > currentRecord.ttl){
-                    $.notesBS.removeNotes({name: existingNames, id: currentRecord.id});
+                    // console.log(existingKeys, currentRecord.id)
+                    $.notesBS.removeNotes({name: existingKeys, id: currentRecord.id});
                 }
             }
         }
@@ -168,6 +169,7 @@ import {Builder} from "./builder.js";
             storageData[data.name].push({id: data.id, note: data.note, ttl: expireTime});
             localStorage.setItem(data.key, JSON.stringify(storageData))
         }
+        $.notesBS.readNotes(settings.key);
     }
 
     $.notesBS.removeNotes = (data) => {
@@ -175,7 +177,6 @@ import {Builder} from "./builder.js";
         if (localStorage.getItem(settings.key)) {
             storageData = JSON.parse(localStorage.getItem(settings.key));
             if (typeof storageData[data.name] !== 'undefined') {
-                const parsedArray = [...storageData[data.name]];
                 const findValue = storageData[data.name].find((o, i) => {
                     return o['id'] === data.id
                 });
@@ -185,17 +186,19 @@ import {Builder} from "./builder.js";
                         storageData[data.name].splice(parseInt(currentValue), 1);
                     }
                 }
-                console.log(storageData[data.name])
+                if(storageData[data.name].length < 1){
+                    delete storageData[data.name];
+                }
             }
             localStorage.setItem(settings.key, JSON.stringify(storageData));
-            $.notesBS.buildNotes(settings.key);
         }
-        return false;
+        $.notesBS.readNotes(settings.key);
+        $.notesBS.buildNotes();
     }
 
     $.notesBS.clearNotes = (key) => {
         localStorage.removeItem(key);
         $(".existingNoteContainer").remove();
-        $.notesBS.buildNotes(key)
+        $.notesBS.buildNotes()
     }
 }(jQuery));
