@@ -80,10 +80,12 @@ export class Builder {
                             )
                             .on("click", function (e) {
                                 e.preventDefault();
-                                const dataForDelete = {};
-                                dataForDelete.name = note;
-                                dataForDelete.id = currentNote[i].id;
-                                $.notesBS.removeNotes(dataForDelete);
+                                Builder.prototype.buildConfirmButtonsForRemove({
+                                    removeAll: false,
+                                    currentNoteId: currentNote[i].id.replace(/\W/, ""),
+                                    currentNoteName: note,
+                                    element: $(this)
+                                })
                             })
                     )
                 notesNameListing.append(noteLine);
@@ -110,7 +112,7 @@ export class Builder {
             )
             .on("click", function (e) {
                 e.preventDefault();
-                $.notesBS.clearNotes(settings.key)
+                Builder.prototype.buildConfirmButtonsForRemove({removeAll: true})
             })
 
         switch (this.settings.bootstrapVersion) {
@@ -127,6 +129,58 @@ export class Builder {
                 break;
         }
 
+    }
+
+    buildConfirmButtonsForRemove(data) {
+        const settings = this.settings;
+
+        const confirmContainer = $("<div/>")
+            .attr({
+                id: "confirmContainer" + data.currentNoteId ?? ""
+            })
+            .addClass("p-1 btn-group btn-group-sm")
+
+        let confirmButton;
+        if (data.removeAll === false) {
+            confirmButton = $("<a/>")
+                .attr({
+                    href: "#"
+                })
+                .addClass("btn btn-success")
+                .html("Remove?")
+                .on("click", function (e) {
+                    e.preventDefault();
+                    const dataForDelete = {};
+                    dataForDelete.name = data.currentNoteName;
+                    dataForDelete.id = data.currentNoteId;
+                    $.notesBS.removeNotes(dataForDelete);
+                })
+        } else {
+            confirmButton = $("<a/>")
+                .attr({
+                    href: "#"
+                })
+                .addClass("btn btn-success")
+                .html("Remove all notes?")
+                .on("click", function (e) {
+                    e.preventDefault();
+                    $.notesBS.clearNotes(settings.key)
+                })
+        }
+
+        const cancelButton = $("<a/>")
+            .attr({
+                href: "#"
+            })
+            .html("Cancel")
+            .addClass("btn btn-sm btn-danger")
+            .on("click", function (e) {
+                e.preventDefault();
+                $("#confirmContainer" + data.currentNoteId ?? "").remove()
+            })
+
+        confirmContainer.append(confirmButton, cancelButton);
+        confirmContainer.insertAfter(data.element);
     }
 
     buildExistingNote(findValue) {
