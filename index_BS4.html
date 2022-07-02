@@ -37,6 +37,7 @@
     <div class="card">
         <div class="card-header card-header-gray">
             <h2 class="card-title">
+                Demo for dynamic notes Bootstrap 4
             </h2>
         </div>
         <div class="card-body">
@@ -53,13 +54,10 @@
                     </div>
                 </div>
             </div>
-            <label for="other_code">Add some more dynamic shit</label>
+            <label for="other_code">Add some more dynamic inputs - with data-note-title</label>
             <input type="text" class="form-control haveNote" name="other_code" id="other_code" data-note-title="Dynamic note"/>
-            <label for="crazy_code">And more dynamic shit</label>
+            <label for="crazy_code">And another dynamic input</label>
             <input type="text" class="form-control haveNote" name="crazy_code" id="crazy_code" data-note-title="Test words"/>
-        </div>
-        <div class="card-footer">
-
         </div>
     </div>
 </div>
@@ -73,19 +71,25 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form method="post" action="/" id="addNoteForm">
-                <div class="modal-body">
+            <div class="modal-body">
+                <form method="post" action="/" id="addNoteForm" novalidate>
                     <label for="noteTitle">Note title</label>
                     <input type="text" name="noteTitle" class="form-control" id="noteTitle" required/>
+                    <div class="invalid-feedback">
+                        Enter a title!
+                    </div>
                     <label for="noteContent">Note</label>
                     <input type="text" name="noteContent" class="form-control" id="noteContent" required/>
+                    <div class="invalid-feedback">
+                        Enter a note!
+                    </div>
                     <input type="hidden" name="noteName" class="form-control" id="noteName"/>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" id="saveNote">Save note</button>
-                </div>
-            </form>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Save note</button>
+            </div>
         </div>
     </div>
 </div>
@@ -93,9 +97,10 @@
 <script src="js/dynamic_notes.js" type="module"></script>
 <script>
     $(function () {
-        $.notesBS4({
+        $.notesBS({
             key: 'test',
-            useGoogleIcons: false,
+            useIcons: true,
+            expireAfter: 168,
             iconAddNote: '<span class="material-symbols-outlined fs">note_add</span>',
             iconExistingNote: '<span class="material-symbols-outlined fs">note_add</span>',
             iconRemoveNote: '<span class="material-symbols-outlined fs">delete</span>'

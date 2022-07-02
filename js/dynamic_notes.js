@@ -7,10 +7,14 @@ import {Builder} from "./builder.js";
 
         //Default key name. This can later be put to URL
         key: "BS4_notes",
+        //Expire time in hours
+        expireAfter: 168,
         //Name of the class of the inputs
         convertClass: "haveNote",
         // Use an icon font
         useIcons: true,
+        //Modal ID to handle the adding of notes
+        modalId: "#addNoteModal",
         // Default Google Icon for Add a Note
         iconAddNote: '<span class="material-symbols-outlined fs">note_add</span>',
         // Default Google Icon for Existing Note
@@ -28,15 +32,17 @@ import {Builder} from "./builder.js";
     let existingNotes = {}
     let builder;
 
-    $.notesBS4 = function (options) {
+    $.notesBS = (options) => {
         settings = $.extend({}, defaults, options);
         builder = new Builder(settings);
 
-        $.notesBS4.buildNotes(settings.key)
-        $.notesBS4.doNotesInit()
+        $.notesBS.buildNotes(settings.key)
+        $.notesBS.doNotesInit()
 
-        $("#addNoteModal").on("shown.bs.modal", function (e) {
+        $(settings.modalId).on("shown.bs.modal", function (e) {
             const noteForm = $(this).find("form");
+            const submitButton = $(this).find("button[type=submit]");
+
             noteForm.trigger('reset');
 
             const triggered = e.relatedTarget;
@@ -44,29 +50,47 @@ import {Builder} from "./builder.js";
             $("#noteTitle").val(noteTitle.val());
             $("#noteName").val(noteTitle.data("note-title") ?? noteTitle.attr("name"));
             $("#noteContent").focus();
+            submitButton.on("click", function(e){
+                $.notesBS.submitNewNote(e, noteForm);
+            })
+
         });
 
         $("#addNoteForm").on("submit", function (e) {
-            e.preventDefault();
-            const dataForSave = {};
-            dataForSave.id = $("#noteTitle").val()
-            dataForSave.note = $("#noteContent").val()
-            dataForSave.name = $("#noteName").val()
-            dataForSave.key = settings.key
-            $.notesBS4.saveNotes(dataForSave)
-            $("#addNoteModal").modal('hide');
-            $.notesBS4.buildNotes(settings.key)
+
         });
     }
 
-    $.notesBS4.doNotesInit = function doNotesInit() {
+    $.notesBS.submitNewNote = (e, submittedForm) => {
+
+        if (submittedForm[0].checkValidity() === false) {
+            e.preventDefault();
+            e.stopPropagation();
+            submittedForm.addClass('was-validated');
+        } else {
+            const dataForSave = {};
+            const noteTitle = $("#noteTitle");
+            const noteContent = $("#noteContent");
+
+            dataForSave.id = noteTitle.val()
+            dataForSave.note = noteContent.val()
+            dataForSave.name = $("#noteName").val()
+            dataForSave.key = settings.key
+
+            $.notesBS.saveNotes(dataForSave)
+            $(settings.modalId).modal('hide');
+            $.notesBS.buildNotes(settings.key)
+        }
+    }
+
+    $.notesBS.doNotesInit = () => {
         const notesInputs = $("." + settings.convertClass);
         $.each(notesInputs, function (ind, ele) {
             if ($(ele).parent('.input-group').length > 0) {
                 $(ele).parents(".input-group").append(builder.buildAddANote());
                 $(ele).on("blur", function () {
                     const currentInputValue = $(this).val()
-                    $.notesBS4.checkIfIdExist({id: currentInputValue, ele: $(this)});
+                    $.notesBS.checkIfIdExist({id: currentInputValue, ele: $(this)});
                 })
             } else {
                 const currentInputElement = $(ele).clone();
@@ -76,8 +100,8 @@ import {Builder} from "./builder.js";
         })
     }
 
-    $.notesBS4.buildNotes = function buildNotes(key) {
-        existingNotes = $.notesBS4.readNotes(key);
+    $.notesBS.buildNotes = (key) => {
+        existingNotes = $.notesBS.readNotes(key);
         const notesContainer = $(settings.recordedNotesContainer);
 
         if (Object.keys(existingNotes).length > 0) {
@@ -88,7 +112,7 @@ import {Builder} from "./builder.js";
         }
     }
 
-    $.notesBS4.checkIfIdExist = function checkIfIdExist(data) {
+    $.notesBS.checkIfIdExist = (data) => {
         const elementParentContainer = data.ele.parent(".input-group");
 
         const placeName = data.ele.data("note-title") ?? data.ele.attr('name');
@@ -97,21 +121,37 @@ import {Builder} from "./builder.js";
             existingNoteContainer.remove();
         }
 
-        const findValue = existingNotes[placeName].find((o) => {
-            return o['id'] === data.id
-        });
+        if (typeof existingNotes[placeName] !== 'undefined') {
 
-        if (typeof findValue !== 'undefined') {
-            data.ele.parent(".input-group").after(builder.buildExistingNote(findValue))
+            const findValue = existingNotes[placeName].find((o) => {
+                return o['id'] === data.id
+            });
+
+            if (typeof findValue !== 'undefined') {
+                data.ele.parent(".input-group").after(builder.buildExistingNote(findValue))
+            }
         }
     }
 
-    $.notesBS4.readNotes = function readNotes(key) {
+    $.notesBS.readNotes = (key) => {
+        const existingNotes = JSON.parse(localStorage.getItem(key)) ?? {};
+        const now = new Date().getTime();
+
+        for (const existingKeys in existingNotes) {
+            for (const existingNames in existingNotes[existingKeys]) {
+                const currentRecord = existingNotes[existingKeys][existingNames]
+                if(now > currentRecord.ttl){
+                    $.notesBS.removeNotes({name: existingNames, id: currentRecord.id});
+                }
+            }
+        }
         return JSON.parse(localStorage.getItem(key)) ?? {};
     }
 
-    $.notesBS4.saveNotes = function saveNotes(data) {
+    $.notesBS.saveNotes = (data) => {
         let storageData = {}
+        const expireTime = new Date().getTime() + (settings.expireAfter * 60 * 60 * 1000);
+
         if (localStorage.getItem(data.key)) {
             storageData = JSON.parse(localStorage.getItem(data.key));
             if (typeof storageData[data.name] === 'undefined') {
@@ -120,15 +160,42 @@ import {Builder} from "./builder.js";
         } else {
             storageData[data.name] = [];
         }
-        storageData[data.name].push({id: data.id, note: data.note});
 
-        localStorage.removeItem(data.key);
-        localStorage.setItem(data.key, JSON.stringify(storageData))
+        const findValue = storageData[data.name].find((o) => {
+            return o['id'] === data.id
+        });
+        if (typeof findValue === "undefined") {
+            storageData[data.name].push({id: data.id, note: data.note, ttl: expireTime});
+            localStorage.setItem(data.key, JSON.stringify(storageData))
+        }
     }
 
-    $.notesBS4.clearNotes = function clearNotes(key) {
+    $.notesBS.removeNotes = (data) => {
+        let storageData = {}
+        if (localStorage.getItem(settings.key)) {
+            storageData = JSON.parse(localStorage.getItem(settings.key));
+            if (typeof storageData[data.name] !== 'undefined') {
+                const parsedArray = [...storageData[data.name]];
+                const findValue = storageData[data.name].find((o, i) => {
+                    return o['id'] === data.id
+                });
+
+                for (const currentValue in storageData[data.name]) {
+                    if (storageData[data.name][currentValue] === findValue) {
+                        storageData[data.name].splice(parseInt(currentValue), 1);
+                    }
+                }
+                console.log(storageData[data.name])
+            }
+            localStorage.setItem(settings.key, JSON.stringify(storageData));
+            $.notesBS.buildNotes(settings.key);
+        }
+        return false;
+    }
+
+    $.notesBS.clearNotes = (key) => {
         localStorage.removeItem(key);
         $(".existingNoteContainer").remove();
-        $.notesBS4.buildNotes(key)
+        $.notesBS.buildNotes(key)
     }
 }(jQuery));
