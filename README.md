@@ -11,7 +11,6 @@ Bootstrap 4/5; JQuery
 Download ```js/dynamic_notes.js``` and include it in your HTML file. Start it:
 
 ```html
-
 <script src="js/dynamic_notes.js"></script>
 <script>
     $(function () {
@@ -45,6 +44,8 @@ const defaults = {
     convertClass: "haveNote",
     // Use an icon font
     useIcons: true,
+    //Modal ID to handle the adding of notes
+    modalId: "#addNoteModal",
     // Default Google Icon for Add a Note
     iconAddNote: '<span class="material-symbols-outlined fs">note_add</span>',
     // Default Google Icon for Existing Note
@@ -54,14 +55,17 @@ const defaults = {
     // Container for recorded notes
     recordedNotesContainer: "#notesContainer",
     // Bootstrap version
-    bootstrapVersion: '4'
+    bootstrapVersion: '4',
+    // just for fun. This works for a single note, if you have multiple inputs with notes, remove this
+    stickyNoteId: "",
+    // You have to enter here a style for the Pushpin icon
+    stickyNotePushPinIcon: '<span class="material-symbols-rounded fs">push_pin</span>',
 };
 ```
 
 Include Bootstrap and Jquery components
 
 ```html
-
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-fQybjgWLrvvRgtW6bFlB7jaZrFsaBXjsOMm/tB9LTS58ONXgqbR9W8oWht/amnpF" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
@@ -77,7 +81,6 @@ The extension is built with support for Google Material Icons:
 Some styling for Google Icons and the notes container:
 
 ```html
-
 <style>
     /* Some settings for Google Material Icons */
     .material-symbols-outlined {
