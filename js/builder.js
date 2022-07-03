@@ -183,6 +183,47 @@ export class Builder {
         confirmContainer.insertAfter(data.element);
     }
 
+    buildStickyNoteContainer(setId) {
+        const settings = this.settings;
+
+        const stickyNote = $("<div/>")
+            .attr({
+                id: setId
+            })
+            .css({
+                "position": "fixed",
+                "z-index": "999",
+                "top": "50px",
+                "width": "230px",
+                "rotate": "-5deg",
+                "background": "#ff0000",
+            })
+            .addClass("d-none")
+            .append(
+                $("<div/>")
+                    .addClass("d-flex justify-content-between")
+                    .append(
+                        $("<div/>")
+                            .attr("id", "currentNoteContent")
+                            .addClass("p-2")
+                    )
+                    .append(
+                        $("<div/>")
+                            .append(
+                                $(settings.stickyNotePushPinIcon).css({
+                                    "font-size": "4em",
+                                    rotate: "15deg",
+                                    position: "fixed",
+                                    top: "-35px",
+                                    right: "25px"
+                                })
+                            )
+                    )
+            )
+
+        $(document.body).append(stickyNote)
+    }
+
     buildExistingNote(findValue) {
         const settings = this.settings
         return $("<div/>")

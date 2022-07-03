@@ -24,7 +24,11 @@ import {Builder} from "./builder.js";
         // Container for recorded notes
         recordedNotesContainer: "#notesContainer",
         // Bootstrap version
-        bootstrapVersion: '4'
+        bootstrapVersion: '4',
+        // just for fun. This works for a single note, if you have multiple inputs with notes, remove this
+        stickyNoteId: "",
+        // You have to enter here a style for the Pushpin icon
+        stickyNotePushPinIcon: '<span class="material-symbols-rounded fs">push_pin</span>',
     };
 
     let settings = {};
@@ -33,8 +37,13 @@ import {Builder} from "./builder.js";
     let builder;
 
     $.notesBS = (options) => {
-        settings = $.extend({}, defaults, options);
+        // settings = $.extend({}, defaults, options);
+        settings = Object.assign({}, defaults, options);
         builder = new Builder(settings);
+
+        if (settings.stickyNoteId) {
+            builder.buildStickyNoteContainer(settings.stickyNoteId)
+        }
 
         existingNotes = $.notesBS.readNotes(settings.key);
 
@@ -52,13 +61,9 @@ import {Builder} from "./builder.js";
             $("#noteTitle").val(noteTitle.val());
             $("#noteName").val(noteTitle.data("note-title") ?? noteTitle.attr("name"));
             $("#noteContent").focus();
-            submitButton.on("click", function(e){
+            submitButton.on("click", function (e) {
                 $.notesBS.submitNewNote(e, noteForm);
             })
-
-        });
-
-        $("#addNoteForm").on("submit", function (e) {
 
         });
     }
@@ -113,22 +118,46 @@ import {Builder} from "./builder.js";
     }
 
     $.notesBS.checkIfIdExist = (data) => {
-        const elementParentContainer = data.ele.parent(".input-group");
-
         const placeName = data.ele.data("note-title") ?? data.ele.attr('name');
-        const existingNoteContainer = elementParentContainer.next('.existingNoteContainer');
-        if (existingNoteContainer.length > 0) {
-            existingNoteContainer.remove();
-        }
+
+        $.notesBS.removeDisplayedNote(data);
 
         if (typeof existingNotes[placeName] !== 'undefined') {
-
             const findValue = existingNotes[placeName].find((o) => {
                 return o['id'] === data.id
             });
 
             if (typeof findValue !== 'undefined') {
-                data.ele.parent(".input-group").after(builder.buildExistingNote(findValue))
+                if (settings.stickyNoteId !== "") {
+                    const stickyNote = $("#" + settings.stickyNoteId);
+                    if (stickyNote.length > 0) {
+                        if (stickyNote.hasClass("d-none")) {
+                            stickyNote.removeClass("d-none")
+                        }
+                        $("#currentNoteContent").html(builder.buildExistingNote(findValue));
+                    }
+                } else {
+                    data.ele.parent(".input-group").after(builder.buildExistingNote(findValue))
+                }
+            }
+        }
+    }
+
+    $.notesBS.removeDisplayedNote = (data) => {
+        if (settings.stickyNoteId !== "") {
+            const stickyNote = $("#" + settings.stickyNoteId);
+            if (stickyNote.length > 0) {
+                const existingNote = stickyNote.find(".existingNoteContainer")
+                if (!stickyNote.hasClass("d-none")) {
+                    stickyNote.addClass("d-none")
+                }
+            }
+        } else {
+            const elementParentContainer = data.ele.parent(".input-group");
+
+            const existingNoteContainer = elementParentContainer.next('.existingNoteContainer');
+            if (existingNoteContainer.length > 0) {
+                existingNoteContainer.remove();
             }
         }
     }
@@ -140,7 +169,7 @@ import {Builder} from "./builder.js";
         for (const existingKeys in existingNotes) {
             for (const existingNames in existingNotes[existingKeys]) {
                 const currentRecord = existingNotes[existingKeys][existingNames]
-                if(now > currentRecord.ttl){
+                if (now > currentRecord.ttl) {
                     // console.log(existingKeys, currentRecord.id)
                     $.notesBS.removeNotes({name: existingKeys, id: currentRecord.id});
                 }
@@ -186,7 +215,7 @@ import {Builder} from "./builder.js";
                         storageData[data.name].splice(parseInt(currentValue), 1);
                     }
                 }
-                if(storageData[data.name].length < 1){
+                if (storageData[data.name].length < 1) {
                     delete storageData[data.name];
                 }
             }

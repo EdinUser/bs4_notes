@@ -2,12 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>BS4 Notes</title>
+    <title>InpuNotes / Bootstrap 4</title>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-fQybjgWLrvvRgtW6bFlB7jaZrFsaBXjsOMm/tB9LTS58ONXgqbR9W8oWht/amnpF" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded"/>
     <style>
+        .material-symbols-rounded {
+            font-variation-settings: 'FILL' 1,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 17
+        }
+
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0,
             'wght' 400,
@@ -31,9 +38,7 @@
 </head>
 <body>
 <div class="container">
-
     <div class="d-none" id="notesContainer"></div>
-
     <div class="card">
         <div class="card-header card-header-gray">
             <h2 class="card-title">
@@ -47,7 +52,7 @@
                 <div class="input-group-append">
                     <div class="input-group-button">
                         <button type="button" class="btn btn-success" id="addNote" data-toggle="modal" data-target="#addNoteModal">
-                            <span class="material-symbols-outlined fs">
+                            <span class="material-symbols-rounded fs">
                                 search
                             </span>
                         </button>
@@ -101,9 +106,12 @@
             key: 'test',
             useIcons: true,
             expireAfter: 168,
-            iconAddNote: '<span class="material-symbols-outlined fs">note_add</span>',
-            iconExistingNote: '<span class="material-symbols-outlined fs">note_add</span>',
-            iconRemoveNote: '<span class="material-symbols-outlined fs">delete</span>'
+            iconAddNote: '<span class="material-symbols-rounded fs">note_add</span>',
+            iconExistingNote: '<span class="material-symbols-rounded fs">note</span>',
+            iconRemoveNote: '<span class="material-symbols-rounded fs">delete</span>',
+            // just for fun. This works for a single note, if you have multiple inputs with notes, remove this
+            stickyNoteId: "useStickyNote",
+            stickyNotePushPinIcon: '<span class="material-symbols-rounded fs">push_pin</span>',
         });
     })
 </script>
