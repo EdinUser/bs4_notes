@@ -1,4 +1,4 @@
-# Bootstrap 4 localstorage notes
+# InpuNotes
 
 This script allows you to add notes to any "input" field on your page. This extension utilizes the ```localstorage``` option, so this means the notes are ONLY ON YOUR CURRENT BROWSER.
 
