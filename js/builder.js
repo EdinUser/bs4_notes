@@ -27,6 +27,13 @@ export class Builder {
         const settings = this.settings;
         const notesContainer = $(this.settings.recordedNotesContainer);
         notesContainer.empty();
+        notesContainer
+            .addClass("fixed-top")
+            .css({
+                "top": "5px",
+                "right": "5px",
+                "width": "200px"
+            });
 
         const notesListing = $("<div/>").attr("id", "notesListing");
         for (const note in existingNotes) {
@@ -112,7 +119,7 @@ export class Builder {
             )
             .on("click", function (e) {
                 e.preventDefault();
-                Builder.prototype.buildConfirmButtonsForRemove({removeAll: true})
+                Builder.prototype.buildConfirmButtonsForRemove({removeAll: true, element: $(this)})
             })
 
         switch (this.settings.bootstrapVersion) {
@@ -164,7 +171,7 @@ export class Builder {
                 .html("Remove all notes?")
                 .on("click", function (e) {
                     e.preventDefault();
-                    $.notesBS.clearNotes(settings.key)
+                    $.notesBS.clearNotes()
                 })
         }
 
@@ -194,6 +201,7 @@ export class Builder {
                 "position": "fixed",
                 "z-index": "999",
                 "top": "50px",
+                "right": "5px",
                 "width": "230px",
                 "rotate": "-5deg",
                 "background": "#ff0000",
@@ -202,6 +210,16 @@ export class Builder {
             .append(
                 $("<div/>")
                     .addClass("d-flex justify-content-between")
+                    .append(
+                        $("<a/>")
+                            .attr("href", "#")
+                            .addClass("btn btn-sm btn-close")
+                            .html("X")
+                            .on("click", function (e) {
+                                e.preventDefault();
+                                $("#" + setId).addClass("d-none")
+                            })
+                    )
                     .append(
                         $("<div/>")
                             .attr("id", "currentNoteContent")

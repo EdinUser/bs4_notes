@@ -25,18 +25,11 @@
             max-width: 17px;
             max-height: 17px;
         }
-
-        #notesContainer {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            width: 200px;
-        }
     </style>
 </head>
 <body>
+<div class="d-none fixed-top" id="notesContainer"></div>
 <div class="container">
-    <div class="d-none" id="notesContainer"></div>
 
     <div class="jumbotron">
         <h1 class="display-4">Inpunotes</h1>
@@ -80,9 +73,9 @@
     key: 'test',
     useIcons: true,
     expireAfter: 168,
-    iconAddNote: '<span class="material-symbols-rounded fs">note_add</span>',
-    iconExistingNote: '<span class="material-symbols-rounded fs">note</span>',
-    iconRemoveNote: '<span class="material-symbols-rounded fs">delete</span>',
+    iconAddNote: '&lt;span class=&quot;material-symbols-rounded fs&quot;&gt;note_add&lt;/span&gt;',
+    iconExistingNote: '&lt;span class=&quot;material-symbols-rounded fs&quot;&gt;note&lt;/span&gt;',
+    iconRemoveNote: '&lt;span class=&quot;material-symbols-rounded fs&quot;&gt;delete&lt;/span&gt;',
 });</code></pre>
         <h3>All settings</h3>
         <p>List of all settings, with their default values:</p>
@@ -98,11 +91,11 @@
     //Modal ID to handle the adding of notes
     modalId: "#addNoteModal",
     // Default Google Icon for Add a Note
-    iconAddNote: '<span class="material-symbols-outlined fs">note_add</span>',
+    iconAddNote: '&lt;span class=&quot;material-symbols-rounded fs&quot;&gt;note_add&lt;/span&gt;',
     // Default Google Icon for Existing Note
-    iconExistingNote: '<span class="material-symbols-outlined fs">note</span>',
+    iconExistingNote: '&lt;span class=&quot;material-symbols-rounded fs&quot;&gt;note&lt;/span&gt;',
     // Default Google Icon for Remove an icon
-    iconRemoveNote: '<span class="material-symbols-outlined fs">delete</span>',
+    iconRemoveNote: '&lt;span class=&quot;material-symbols-rounded fs&quot;&gt;delete&lt;/span&gt;',
     // Container for recorded notes
     recordedNotesContainer: "#notesContainer",
     // Bootstrap version
@@ -110,7 +103,7 @@
     // just for fun. This works for a single note, if you have multiple inputs with notes, remove this
     stickyNoteId: "",
     // You have to enter here a style for the Pushpin icon
-    stickyNotePushPinIcon: '<span class="material-symbols-rounded fs">push_pin</span>',
+    stickyNotePushPinIcon: '&lt;span class="material-symbols-rounded fs"&gt;push_pin&lt;/span&gt;',
 };</code></pre>
     </div>
 
@@ -176,8 +169,7 @@
                 <label for="crazy_code">This input have a dedicated data-note-title value</label>
                 <input type="text" class="form-control haveNote" name="crazy_code" id="crazy_code" data-note-title="Test words"/>
                 <h3>This is what the original code looked like. See the "data" attribute:</h3>
-                <pre><code class="language-html">&lt;input type=&quot;text&quot; class=&quot;form-control haveNote&quot; name=&quot;crazy_code&quot; id=&quot;crazy_code&quot; data-note-title=&quot;Test words&quot;/&gt;
-&lt;h3&gt;This is what the original code looked like. See the &quot;data&quot; attribute:&lt;/h3&gt;</code></pre>
+                <pre><code class="language-html">&lt;input type=&quot;text&quot; class=&quot;form-control haveNote&quot; name=&quot;crazy_code&quot; id=&quot;crazy_code&quot; data-note-title=&quot;Test words&quot;/&gt;</code></pre>
             </div>
         </div>
     </div>
