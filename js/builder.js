@@ -119,7 +119,7 @@ export class Builder {
             )
             .on("click", function (e) {
                 e.preventDefault();
-                Builder.prototype.buildConfirmButtonsForRemove({removeAll: true})
+                Builder.prototype.buildConfirmButtonsForRemove({removeAll: true, element: $(this)})
             })
 
         switch (this.settings.bootstrapVersion) {
@@ -171,7 +171,7 @@ export class Builder {
                 .html("Remove all notes?")
                 .on("click", function (e) {
                     e.preventDefault();
-                    $.notesBS.clearNotes(settings.key)
+                    $.notesBS.clearNotes()
                 })
         }
 
@@ -210,6 +210,16 @@ export class Builder {
             .append(
                 $("<div/>")
                     .addClass("d-flex justify-content-between")
+                    .append(
+                        $("<a/>")
+                            .attr("href", "#")
+                            .addClass("btn btn-sm btn-close")
+                            .html("X")
+                            .on("click", function (e) {
+                                e.preventDefault();
+                                $("#" + setId).addClass("d-none")
+                            })
+                    )
                     .append(
                         $("<div/>")
                             .attr("id", "currentNoteContent")

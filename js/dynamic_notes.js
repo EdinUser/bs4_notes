@@ -2,9 +2,8 @@ import {Builder} from "./builder.js";
 
 (function ($) {
 
+    // These are the defaults.
     const defaults = {
-        // These are the defaults.
-
         //Default key name. This can later be put to URL
         key: "BS4_notes",
         //Expire time in hours
@@ -170,12 +169,11 @@ import {Builder} from "./builder.js";
             for (const existingNames in existingNotes[existingKeys]) {
                 const currentRecord = existingNotes[existingKeys][existingNames]
                 if (now > currentRecord.ttl) {
-                    // console.log(existingKeys, currentRecord.id)
                     $.notesBS.removeNotes({name: existingKeys, id: currentRecord.id});
                 }
             }
         }
-        return JSON.parse(localStorage.getItem(key)) ?? {};
+        return existingNotes;
     }
 
     $.notesBS.saveNotes = (data) => {
@@ -195,7 +193,7 @@ import {Builder} from "./builder.js";
             return o['id'] === data.id
         });
         if (typeof findValue === "undefined") {
-            storageData[data.name].push({id: data.id, note: data.note, ttl: expireTime});
+            storageData[data.name.trim()].push({id: data.id.trim(), note: data.note.trim(), ttl: expireTime});
             localStorage.setItem(data.key, JSON.stringify(storageData))
         }
         $.notesBS.readNotes(settings.key);
@@ -206,8 +204,8 @@ import {Builder} from "./builder.js";
         if (localStorage.getItem(settings.key)) {
             storageData = JSON.parse(localStorage.getItem(settings.key));
             if (typeof storageData[data.name] !== 'undefined') {
-                const findValue = storageData[data.name].find((o, i) => {
-                    return o['id'] === data.id
+                const findValue = storageData[data.name].find((o) => {
+                    return o['id'].trim() === data.id.trim()
                 });
 
                 for (const currentValue in storageData[data.name]) {
@@ -225,9 +223,10 @@ import {Builder} from "./builder.js";
         $.notesBS.buildNotes();
     }
 
-    $.notesBS.clearNotes = (key) => {
-        localStorage.removeItem(key);
+    $.notesBS.clearNotes = () => {
+        localStorage.removeItem(settings.key);
         $(".existingNoteContainer").remove();
+        existingNotes = {};
         $.notesBS.buildNotes()
     }
 }(jQuery));
