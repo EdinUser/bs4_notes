@@ -27,6 +27,13 @@ export class Builder {
         const settings = this.settings;
         const notesContainer = $(this.settings.recordedNotesContainer);
         notesContainer.empty();
+        notesContainer
+            .addClass("fixed-top")
+            .css({
+                "top": "5px",
+                "right": "5px",
+                "width": "200px"
+            });
 
         const notesListing = $("<div/>").attr("id", "notesListing");
         for (const note in existingNotes) {
@@ -194,6 +201,7 @@ export class Builder {
                 "position": "fixed",
                 "z-index": "999",
                 "top": "50px",
+                "right": "5px",
                 "width": "230px",
                 "rotate": "-5deg",
                 "background": "#ff0000",
