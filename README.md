@@ -2,6 +2,11 @@
 
 This script allows you to add notes to any "input" field on your page. This extension utilizes the ```localstorage``` option, so this means the notes are ONLY ON YOUR CURRENT BROWSER.
 
+## Demo
+Bootstrap 4: https://demos.kirilov.dev/InpuNotes/demo/bs4.html
+
+Bootstrap5: https://demos.kirilov.dev/InpuNotes/demo/bs5.html
+
 ## Requirements
 
 Bootstrap 4/5; JQuery
