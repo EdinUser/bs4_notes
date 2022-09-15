@@ -1,4 +1,5 @@
 import {Builder} from "./builder.js";
+import $ from 'jquery';
 
 (function ($) {
 
@@ -229,4 +230,4 @@ import {Builder} from "./builder.js";
         existingNotes = {};
         $.notesBS.buildNotes()
     }
-}(jQuery));
+}($));
