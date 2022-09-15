@@ -1,3 +1,5 @@
+import $ from 'jquery';
+
 export class bs4builder {
     constructor(settings) {
         this.settings = settings
