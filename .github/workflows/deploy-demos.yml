@@ -1,0 +1,89 @@
+name: Deploy InpuNotes demos
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "demo/**"
+      - "dist/**"
+      - ".github/workflows/deploy-demos.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: inpunotes-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      VPS_HOST: ${{ secrets.VPS_HOST }}
+      VPS_USER: ${{ secrets.VPS_USER }}
+      VPS_PORT: ${{ secrets.VPS_PORT }}
+      VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+      VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+      WEB_ROOT: ${{ secrets.VPS_WEB_ROOT }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Stage published demos
+        run: |
+          set -euo pipefail
+          mkdir -p publish
+          cp -R demo dist publish/
+
+      - name: Validate published assets
+        run: |
+          set -euo pipefail
+          test -s publish/demo/bs4.html
+          test -s publish/demo/bs5.html
+          node --check publish/dist/inputnotes.slim.min.js
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          from urllib.parse import urlsplit, unquote
+          root = Path('publish').resolve()
+          class Assets(HTMLParser):
+              def handle_starttag(self, tag, attrs):
+                  values = dict(attrs)
+                  for key in ('src', 'href'):
+                      url = values.get(key, '')
+                      parts = urlsplit(url)
+                      if not parts.path or parts.scheme or parts.netloc or url.startswith('/'):
+                          continue
+                      asset = (self.base / unquote(parts.path)).resolve()
+                      assert asset.is_relative_to(root) and asset.is_file(), str(asset)
+          for page in sorted((root / 'demo').glob('*.html')):
+              parser = Assets()
+              parser.base = page.parent
+              parser.feed(page.read_text())
+              print('Validated', page.relative_to(root))
+          PY
+
+      - name: Configure SSH
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/vps_key
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
+
+      - name: Deploy demo subtree
+        run: |
+          set -euo pipefail
+          test -n "$WEB_ROOT"
+          ssh -i ~/.ssh/vps_key -p "$VPS_PORT" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes "$VPS_USER@$VPS_HOST" \
+            "mkdir -p '$WEB_ROOT'; test -w '$WEB_ROOT'"
+          rsync -avz --delete --chmod=D755,F644 \
+            --exclude '/.ht*' \
+            -e "ssh -i ~/.ssh/vps_key -p $VPS_PORT -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
+            publish/ "$VPS_USER@$VPS_HOST:$WEB_ROOT/"
